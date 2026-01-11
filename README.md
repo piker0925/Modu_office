@@ -79,29 +79,37 @@
 
 ```
 Modu_office/
-├── src/
-│   ├── main/
-│   │   ├── java/com/modu/modu_office/
-│   │   │   ├── config/              # Spring 설정 (Security, WebSocket 등)
-│   │   │   ├── controller/          # REST API 엔드포인트
-│   │   │   ├── service/             # 비즈니스 로직
-│   │   │   ├── repository/          # 데이터 접근 레이어
-│   │   │   ├── entity/              # JPA 엔티티
-│   │   │   ├── dto/                 # DTO (Data Transfer Object)
-│   │   │   ├── exception/           # 커스텀 예외
-│   │   │   ├── security/            # JWT, SecurityFilter 등
-│   │   │   └── ModuOfficeApplication.java
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       ├── static/              # 정적 리소스
-│   │       └── templates/           # HTML 템플릿
-│   └── test/
-│       └── java/com/modu/modu_office/
-│           └── ModuOfficeApplicationTests.java
-├── gradle/                          # Gradle 래퍼
-├── build.gradle                     # 의존성 및 빌드 설정
-├── settings.gradle
-└── README.md
+├── backend/                         # Spring Boot 백엔드
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/modu/modu_office/
+│   │   │   │   ├── config/              # Spring 설정 (Security, WebSocket 등)
+│   │   │   │   ├── controller/          # REST API 엔드포인트
+│   │   │   │   ├── service/             # 비즈니스 로직
+│   │   │   │   ├── repository/          # 데이터 접근 레이어
+│   │   │   │   ├── entity/              # JPA 엔티티
+│   │   │   │   ├── dto/                 # DTO (Data Transfer Object)
+│   │   │   │   ├── exception/           # 커스텀 예외
+│   │   │   │   ├── security/            # JWT, SecurityFilter 등
+│   │   │   │   └── ModuOfficeApplication.java
+│   │   │   └── resources/
+│   │   │       ├── application.properties
+│   │   │       ├── static/              # 정적 리소스
+│   │   │       └── templates/           # HTML 템플릿
+│   │   └── test/
+│   │       └── java/com/modu/modu_office/
+│   │           └── ModuOfficeApplicationTests.java
+│   ├── gradle/                      # Gradle 래퍼
+│   ├── build.gradle                 # 의존성 및 빌드 설정
+│   ├── settings.gradle
+│   └── HELP.md
+├── frontend/                        # React 프론트엔드
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── ...
+├── README.md                        # 전체 프로젝트 문서
+└── .gitignore
 ```
 
 ---
@@ -135,9 +143,9 @@ ALTER ROLE modu_user SET default_transaction_deferrable TO on;
 GRANT ALL PRIVILEGES ON DATABASE modu_office TO modu_user;
 ```
 
-### 3. 환경 설정
+### 3. 백엔드 환경 설정
 
-`src/main/resources/application.properties` 파일을 수정합니다:
+`backend/src/main/resources/application.properties` 파일을 수정합니다:
 
 ```properties
 # 데이터베이스 연결
@@ -160,12 +168,20 @@ server.port=8080
 server.servlet.context-path=/api
 ```
 
-### 4. 빌드 및 실행
+### 4. 백엔드 빌드 및 실행
 
 #### Gradle을 사용하여 빌드
 
 ```bash
+cd backend
 ./gradlew build
+```
+
+또는 Windows:
+
+```bash
+cd backend
+gradlew.bat build
 ```
 
 #### 애플리케이션 실행
@@ -181,11 +197,19 @@ server.servlet.context-path=/api
 java -jar build/libs/modu_office-0.0.1-SNAPSHOT.jar
 ```
 
-애플리케이션이 성공적으로 시작되면 다음 주소에서 접근할 수 있습니다:
+백엔드 애플리케이션이 성공적으로 시작되면 다음 주소에서 접근할 수 있습니다:
 
 - **API 서버**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **WebSocket**: ws://localhost:8080/ws
+
+### 5. 프론트엔드 환경 설정 (선택사항)
+
+```bash
+cd frontend
+npm install
+npm start
+```
 
 ---
 
@@ -301,9 +325,10 @@ stompClient.connect({}, () => {
 
 ## 🧪 테스트
 
-### 단위 테스트 실행
+### 백엔드 단위 테스트 실행
 
 ```bash
+cd backend
 ./gradlew test
 ```
 
@@ -388,7 +413,7 @@ CREATE TABLE audit_logs (
 
 ### 로그 레벨 설정
 
-`application.properties`에서 로그 레벨을 조정할 수 있습니다:
+`backend/src/main/resources/application.properties`에서 로그 레벨을 조정할 수 있습니다:
 
 ```properties
 # Spring Boot 로깅
@@ -403,7 +428,7 @@ logging.level.org.hibernate.SQL=DEBUG
 로그는 다음 위치에 저장됩니다:
 
 ```
-logs/modu-office.log
+backend/logs/modu-office.log
 ```
 
 ---
@@ -438,7 +463,9 @@ chore: 빌드 설정, 의존성 업데이트
 
 ### 핫 리로드 활성화
 
-Spring Boot DevTools를 사용하여 개발 중 자동 재시작:
+Spring Boot DevTools를 사용하여 개발 중 자동 재시작을 활성화합니다.
+
+`backend/src/main/resources/application.properties`에 다음을 추가합니다:
 
 ```properties
 spring.devtools.restart.enabled=true
