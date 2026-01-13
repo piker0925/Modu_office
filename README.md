@@ -38,35 +38,36 @@
 
 ## 🚀 주요 기능
 
-### 1. 회의실 관리
+### 1. 지점 및 공간 관리
 
-- ✅ 회의실 추가 (이름, 위치, 수용인원, 설비)
-- ✅ 회의실 조회 (목록, 상세)
-- ✅ 회의실 수정/삭제 (관리자만)
+- ✅ 지점(Office) 생성 및 관리 (이름, 위치)
+- ✅ 지점별 공간(Room) 관리 (코드, 층, 수용인원, 카테고리)
+- ✅ 공간 상태 자동 관리 (available, inactive)
 
 ### 2. 예약 시스템
 
-- ✅ 예약 생성 (회의실, 날짜, 시간 선택)
-- ✅ 시간 충돌 방지 (낙관적 락으로 동시 예약 차단)
-- ✅ 예약 조회 (내 예약, 회의실별 예약 현황)
-- ✅ 예약 취소/변경
+- ✅ 예약 생성 (지점, 공간, 시간 선택)
+- ✅ **복합 무결성 제어**: (공간, 지점) 쌍을 검증하여 예약 일관성 보장
+- ✅ 시간 충돌 방지 (PostgreSQL 인덱스 및 제약 조건 활용)
+- ✅ 예약 조회 및 상태 관리 (PENDING, CONFIRMED, CANCELED)
 
-### 3. 인증 및 권한 관리
+### 3. 인증 및 권한 관리 (RBAC)
 
-- ✅ 회원가입, 로그인 (JWT 토큰)
-- ✅ **USER 권한**: 자기 예약만 관리, 회의실 조회
-- ✅ **ADMIN 권한**: 모든 회의실/예약 관리
+- ✅ 계정(Account)과 프로필(User) 분리 운영
+- ✅ **CUSTOMER**: 일반 사용자 (예약 생성 및 본인 예약 조회)
+- ✅ **OPERATOR**: 지점 운영자 (담당 지점 관리)
+- ✅ **PLATFORM_ADMIN**: 전체 시스템 관리자
 
-### 4. 감사 로그
+### 4. 감사 로그 (Audit Log)
 
-- ✅ 모든 예약 변경 기록 (생성, 수정, 취소)
-- ✅ 누가, 언제, 뭘 바꿨는지 저장
-- ✅ 관리자만 조회 가능
+- ✅ 예약 전용 변경 이력 추적 (생성, 수정, 취소)
+- ✅ 변경 전/후 데이터 JSON 저장 (`before_data`, `after_data`)
+- ✅ 액터(Actor) 추적을 통한 책임 소재 명확화
 
 ### 5. 실시간 동기화
 
 - ✅ WebSocket으로 예약 현황 실시간 반영
-- ✅ 누군가 예약하면 다른 사람 화면에 즉시 나타남
+- ✅ 동시 접근 시 최신 상태 즉시 업데이트
 
 ### 6. 관리자 대시보드
 
@@ -232,36 +233,27 @@ POST   /auth/login            - 로그인
 POST   /auth/refresh-token    - 토큰 갱신
 ```
 
-#### 회의실 관리
+#### 지점 및 공간 관리
 ```
-GET    /rooms                 - 회의실 목록 조회
-GET    /rooms/{id}            - 회의실 상세 조회
-POST   /rooms                 - 회의실 추가 (관리자만)
-PUT    /rooms/{id}            - 회의실 수정 (관리자만)
-DELETE /rooms/{id}            - 회의실 삭제 (관리자만)
+GET    /offices               - 지점 목록 조회
+GET    /offices/{id}/rooms    - 특정 지점의 공간 목록 조회
+POST   /offices               - 지점 추가 (관리자만)
+POST   /offices/{id}/rooms    - 공간 추가 (관리자/운영자)
 ```
 
 #### 예약 관리
 ```
 GET    /reservations          - 예약 목록 조회
 GET    /reservations/{id}     - 예약 상세 조회
-POST   /reservations          - 예약 생성
+POST   /reservations          - 예약 생성 (지점/공간 검증 포함)
 PUT    /reservations/{id}     - 예약 수정
-DELETE /reservations/{id}     - 예약 취소
-GET    /rooms/{id}/schedule   - 회의실별 예약 현황
+DELETE /reservations/{id}     - 예약 취소 (CANCELED 상태 변경)
 ```
 
-#### 감사 로그
+#### 감사 로그 및 통계
 ```
-GET    /audit-logs            - 감사 로그 조회 (관리자만)
-GET    /audit-logs/{id}       - 감사 로그 상세 조회 (관리자만)
-```
-
-#### 대시보드
-```
-GET    /dashboard/stats       - 예약 통계
-GET    /dashboard/popular     - 인기 회의실
-GET    /dashboard/usage       - 시간대별 현황
+GET    /logs/reservations     - 예약 변경 로그 조회
+GET    /dashboard/stats       - 지점별/공간별 예약 통계
 ```
 
 ---
@@ -346,66 +338,35 @@ cd backend
 
 ---
 
-## 📝 데이터베이스 스키마
+## 📝 데이터베이스 스키마 (ERD)
 
-### 주요 테이블
-
-#### users (사용자)
-```sql
-CREATE TABLE users (
-  id BIGSERIAL PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  role VARCHAR(20) DEFAULT 'USER',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### ER Diagram
+```mermaid
+erDiagram
+    account ||--|| app_user : "1:1 (account_id)"
+    office ||--o{ office_room : "1:N (office_id)"
+    office ||--o{ reservation : "1:N (office_id)"
+    office_room ||--o{ reservation : "1:N (room_id, office_id)"
+    app_user ||--o{ reservation : "customer (customer_id)"
+    reservation ||--o{ update_log : "1:N (reservation_id)"
+    app_user ||--o{ update_log : "actor (actor_user_id)"
 ```
 
-#### rooms (회의실)
-```sql
-CREATE TABLE rooms (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  location VARCHAR(255),
-  capacity INTEGER,
-  equipment VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### 주요 테이블 상세
 
-#### reservations (예약)
-```sql
-CREATE TABLE reservations (
-  id BIGSERIAL PRIMARY KEY,
-  room_id BIGINT NOT NULL REFERENCES rooms(id),
-  user_id BIGINT NOT NULL REFERENCES users(id),
-  title VARCHAR(255),
-  start_time TIMESTAMP NOT NULL,
-  end_time TIMESTAMP NOT NULL,
-  description TEXT,
-  status VARCHAR(20) DEFAULT 'CONFIRMED',
-  version BIGINT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+| 테이블명 | 설명 | 핵심 제약 조건 |
+| --- | --- | --- |
+| **account** | 로그인 계정 정보 | `email` Unique |
+| **app_user** | 사용자 프로필 (Role 포함) | `account_id` Unique FK |
+| **office** | 지점(공간의 상위 그룹) | `name` Not Null |
+| **office_room** | 개별 예약 공간 | `(office_id, room_code)` Unique |
+| **reservation** | 예약 정보 | **복합 FK**: `(room_id, office_id)` 참조 |
+| **update_log** | 예약 변경 감사 로그 | JSONB 형식 상세 데이터 저장 |
 
-#### audit_logs (감사 로그)
-```sql
-CREATE TABLE audit_logs (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT REFERENCES users(id),
-  entity_type VARCHAR(50),
-  entity_id BIGINT,
-  action VARCHAR(50),
-  old_value TEXT,
-  new_value TEXT,
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### 데이터 무결성 전략
+- **복합 외래키 (Composite FK)**: `reservation` 테이블에서 `room_id`와 `office_id`를 함께 묶어 `office_room`을 참조함으로써, 특정 지점에 존재하지 않는 공간이 예약되는 것을 데이터베이스 레벨에서 원천 차단합니다.
+- **ENUM 타입**: `account_status`, `user_role`, `room_status`, `reservation_status`, `log_action` 등을 PostgreSQL 커스텀 타입으로 정의하여 데이터 정합성을 유지합니다.
+- **트리거 (Trigger)**: 모든 주요 테이블에 `set_updated_at()` 트리거를 적용하여 변경 시점을 자동으로 기록합니다.
 
 ---
 
@@ -543,6 +504,13 @@ IDE에서 프로젝트를 빌드하면 자동으로 애플리케이션이 재시
 ---
 
 ## 🔄 버전 히스토리
+
+### v0.1.0 (2026-01-12)
+- 데이터베이스 스키마 고도화 (A안 반영)
+- 지점(Office) 및 공간(Room) 구조로 변경
+- 복합 외래키를 통한 예약 무결성 강화
+- 계정(Account) 및 사용자(User) 도메인 분리
+- JSONB 기반의 상세 감사 로그 시스템 도입
 
 ### v0.0.1 (2026-01-11)
 - 초기 프로젝트 설정
