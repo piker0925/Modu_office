@@ -1,6 +1,6 @@
-package com.modu.modu_office.entity;
+package com.modu.office.domain;
 
-import com.modu.modu_office.entity.enums.AccountStatus;
+import com.modu.office.domain.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Getter

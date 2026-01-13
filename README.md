@@ -21,7 +21,7 @@
 
 | 항목 | 기술 | 용도 |
 | --- | --- | --- |
-| **프레임워크** | Spring Boot 3.3 | 웹 애플리케이션 |
+| **프레임워크** | Spring Boot 3.3 | 웹 애플  리케이션 |
 | **ORM** | Spring Data JPA | 데이터베이스 매핑 |
 | **인증** | Spring Security + JWT | 로그인, 권한 관리 |
 | **실시간** | Spring WebSocket (STOMP) | 예약 동기화 |

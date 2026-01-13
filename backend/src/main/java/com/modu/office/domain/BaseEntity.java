@@ -1,4 +1,4 @@
-package com.modu.modu_office.entity;
+package com.modu.office.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

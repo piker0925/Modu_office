@@ -1,6 +1,5 @@
-package com.modu.modu_office.entity.enums;
+package com.modu.office.domain.enums;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LogAction {

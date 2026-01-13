@@ -1,6 +1,6 @@
-package com.modu.modu_office.entity;
+package com.modu.office.domain;
 
-import com.modu.modu_office.entity.enums.ReservationStatus;
+import com.modu.office.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

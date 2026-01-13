@@ -1,4 +1,4 @@
-package com.modu.modu_office;
+package com.modu.office;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

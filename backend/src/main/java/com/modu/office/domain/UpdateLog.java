@@ -1,6 +1,6 @@
-package com.modu.modu_office.entity;
+package com.modu.office.domain;
 
-import com.modu.modu_office.entity.enums.LogAction;
+import com.modu.office.domain.enums.LogAction;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
