@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Reservation 비즈니스 로직 서비스
  */
+@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

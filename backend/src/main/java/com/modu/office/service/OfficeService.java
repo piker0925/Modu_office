@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Office 비즈니스 로직 서비스
  */
+@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

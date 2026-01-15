@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 /**
  * OfficeRoom 비즈니스 로직 서비스
  */
+@SuppressWarnings("null")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
