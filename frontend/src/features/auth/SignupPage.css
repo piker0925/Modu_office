@@ -1,0 +1,13 @@
+.signup-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-primary {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
