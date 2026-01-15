@@ -44,6 +44,10 @@ public class Reservation extends BaseEntity {
     @Column(name = "status", nullable = false, columnDefinition = "reservation_status")
     private ReservationStatus status = ReservationStatus.PENDING;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @Builder
     public Reservation(String title, Office office, OfficeRoom room, AppUser customer, LocalDateTime startAt,
             LocalDateTime endAt, ReservationStatus status) {
@@ -54,5 +58,37 @@ public class Reservation extends BaseEntity {
         this.startAt = startAt;
         this.endAt = endAt;
         this.status = status != null ? status : ReservationStatus.PENDING;
+    }
+
+    /**
+     * 예약 상태 업데이트
+     */
+    public void updateStatus(ReservationStatus newStatus) {
+        this.status = newStatus;
+    }
+
+    /**
+     * 예약 시간 수정
+     */
+    public void updateTimeRange(LocalDateTime startAt, LocalDateTime endAt) {
+        if (endAt.isBefore(startAt) || endAt.isEqual(startAt)) {
+            throw new IllegalArgumentException("종료 시간은 시작 시간 이후여야 합니다.");
+        }
+        this.startAt = startAt;
+        this.endAt = endAt;
+    }
+
+    /**
+     * 예약 취소
+     */
+    public void cancel() {
+        this.status = ReservationStatus.CANCELLED;
+    }
+
+    /**
+     * 예약이 취소되었는지 확인
+     */
+    public boolean isCancelled() {
+        return this.status == ReservationStatus.CANCELLED;
     }
 }

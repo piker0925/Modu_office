@@ -48,10 +48,27 @@ public class OfficeRoom extends BaseEntity {
     @Column(name = "category", length = 100)
     private String category;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @Builder
     public OfficeRoom(Office office, String name, String roomCode, Integer floor, RoomStatus status, Integer capacity,
             String category) {
         this.office = office;
+        this.name = name;
+        this.roomCode = roomCode;
+        this.floor = floor;
+        this.status = status != null ? status : RoomStatus.AVAILABLE;
+        this.capacity = capacity;
+        this.category = category;
+    }
+
+    /**
+     * 회의실 정보 업데이트
+     */
+    public void updateInfo(String name, String roomCode, Integer floor, RoomStatus status, Integer capacity,
+            String category) {
         this.name = name;
         this.roomCode = roomCode;
         this.floor = floor;

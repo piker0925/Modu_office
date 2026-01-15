@@ -39,4 +39,12 @@ public class Office extends BaseEntity {
     public void addRoom(OfficeRoom room) {
         this.rooms.add(room);
     }
+
+    /**
+     * 지점 정보 업데이트
+     */
+    public void updateInfo(String name, String location) {
+        this.name = name;
+        this.location = location;
+    }
 }
