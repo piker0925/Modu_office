@@ -1,4 +1,4 @@
-package com.modu.office.domain.enums;
+package com.modu.office.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

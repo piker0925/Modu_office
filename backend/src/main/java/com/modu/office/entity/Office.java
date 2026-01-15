@@ -1,4 +1,4 @@
-package com.modu.office.domain;
+package com.modu.office.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

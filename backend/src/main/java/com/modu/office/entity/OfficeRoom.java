@@ -1,6 +1,7 @@
-package com.modu.office.domain;
+package com.modu.office.entity;
 
-import com.modu.office.domain.enums.RoomStatus;
+import com.modu.office.entity.enums.RoomStatus;
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

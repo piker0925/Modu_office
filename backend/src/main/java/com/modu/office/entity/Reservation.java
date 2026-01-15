@@ -1,12 +1,13 @@
-package com.modu.office.domain;
+package com.modu.office.entity;
 
-import com.modu.office.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+
+import com.modu.office.entity.enums.ReservationStatus;
 
 @Entity
 @Getter
