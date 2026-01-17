@@ -1,0 +1,74 @@
+.auth-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row-reverse;
+    overflow: hidden;
+}
+
+/* 오른쪽: 폼 영역 (row-reverse로 인해 오른쪽으로 배치됨) */
+.auth-content {
+    flex: 1;
+    background-color: #0f1e2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* 오른쪽: 이미지 영역 */
+.auth-hero {
+    flex: 2.4;
+    position: relative;
+    /* 배경 이미지 설정 */
+    background-image: url('https://campustown.snu.ac.kr/wp-content/uploads/2025/02/%EC%B0%BD%EC%97%85HERE-RO-4_%ED%9A%8C%EC%9D%98%EC%8B%A4.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 이미지 위 어두운 커버 (글자 잘 보이게) */
+.auth-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4));
+    z-index: 1;
+}
+
+/* 브랜딩 텍스트 */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+}
+
+/* 모바일 대응: 위아래로 배치 */
+@media (max-width: 768px) {
+    .auth-layout {
+        flex-direction: column-reverse;
+        /* 이미지가 위로 가도록 하거나, 아래로 가도록 설정 */
+    }
+
+    .auth-hero {
+        flex: none;
+        height: 300px;
+        /* 모바일에서 이미지 높이 고정 */
+    }
+}
+
+/* 브랜딩 텍스트 크기 설정 */
+.brand-title {
+    font-size: 80px;
+}
+
+.brand-subtitle {
+    font-size: 25px;
+}

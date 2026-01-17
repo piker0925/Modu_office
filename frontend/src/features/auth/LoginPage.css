@@ -1,0 +1,49 @@
+.login-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-primary {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* 제목 (환영합니다!) */
+.login-title {
+    font-size: 25px;
+}
+
+/* 부제목 (서비스 이용을 위해...) */
+.login-subtitle {
+    font-size: 10px;
+}
+
+/* 입력창 라벨 (이메일 주소, 비밀번호) */
+.login-card .input-label {
+    font-size: 14px;
+}
+
+/* 입력창 내부 글자 */
+.login-card .input-field {
+    font-size: 14px;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+    font-size: 16px;
+}
+
+/* 하단 문구 (계정이 없으신가요?) */
+.login-footer {
+    font-size: 14px;
+}

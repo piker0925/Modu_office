@@ -1,0 +1,36 @@
+.navbar {
+    height: 64px;
+    border-bottom: var(--glass-border);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(var(--backdrop-blur));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    text-decoration: none;
+}
+
+.nav-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    font-size: var(--font-size-sm);
+}
+
+.nav-link:hover {
+    color: var(--color-text-main);
+}
+
+.text-accent {
+    color: var(--color-accent);
+}
+
+.separator {
+    width: 1px;
+    height: 24px;
+    background: var(--glass-border);
+    margin: 0 var(--spacing-xs);
+}
