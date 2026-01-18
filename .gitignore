@@ -1,0 +1,82 @@
+# ==========================================
+# Modu_office Project .gitignore
+# Backend: Java 17, Spring Boot 3.3, Gradle
+# Frontend: React (Node.js/npm)
+# IDE: IntelliJ IDEA, VS Code
+# DB: PostgreSQL
+# ==========================================
+
+# --- OS Specific Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- IDE & Editors ---
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.history/
+*.code-workspace
+
+# --- Backend (Java / Gradle) ---
+.gradle/
+build/
+bin/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Gradle wrapper (Optional: usually kept, but added here if needed to be excluded)
+# .gradle
+# /build/
+
+# Spring Boot Local Configuration (Security)
+**/src/main/resources/application-local.yml
+**/src/main/resources/application-local.yaml
+**/src/main/resources/application-local.properties
+
+# --- Frontend (Node.js / React) ---
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+.npm
+.eslintcache
+.stylelintcache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Database ---
+*.sql
+*.dump
+postgresql-*.log
+
+# --- Other ---
+temp/
+tmp/
+.bak
+*.swp
+*.patch
+*.diff
+
+# --- Tools & Assistant ---
+.antigravity/
