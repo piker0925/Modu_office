@@ -26,7 +26,7 @@ const TIME_SLOTS = [
 ];
 
 export default function RoomDetailPage() {
-    const { id } = useParams();
+    // const { id } = useParams();
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -114,8 +114,26 @@ export default function RoomDetailPage() {
                             예약 확정
                         </button>
                     </div>
+
+                    <div className="map-widget">
+                        <h2 className="widget-title text-sm mb-sm text-muted">위치 안내</h2>
+                        <div className="map-container">
+                            <iframe
+                                title="Google Map"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3165.379047209633!2d127.02553757640697!3d37.49883582806316!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ca13768f54c31%3A0xe54972dd0cc459f!2z6rCV64Ko!5e0!3m2!1sko!2skr!4v1707920000000!5m2!1sko!2skr"
+                                width="100%"
+                                height="200"
+                                style={{ border: 0 }}
+                                allowFullScreen
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
+
+// 빈공간에 구글 지도 넣기

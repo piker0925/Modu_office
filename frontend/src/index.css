@@ -127,11 +127,12 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.3);
+
 }
 
 .btn-primary:hover {
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 0 15px rgba(217, 119, 6, 0.5);
   transform: translateY(-1px);
 }
 
@@ -184,6 +185,7 @@ body {
 
 .text-gradient {
   background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

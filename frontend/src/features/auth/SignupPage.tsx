@@ -48,8 +48,8 @@ export default function SignupPage() {
     return (
         <div className="card signup-card">
             <div className="text-center mb-lg">
-                <h1 className="text-3xl font-bold mb-sm text-gradient">회원가입</h1>
-                <p className="text-muted text-sm">오늘 바로 Modu Office를 시작하세요</p>
+                <h1 className="signup-title font-bold mb-sm">회원가입</h1>
+                <p className="signup-subtitle text-muted text-sm">오늘 바로 Modu Office를 시작하세요</p>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -85,14 +85,14 @@ export default function SignupPage() {
 
                 <button
                     type="submit"
-                    className="btn btn-primary w-full mt-md text-md py-3"
+                    className="btn btn-primary signup-btn w-full mt-md text-md py-3"
                     disabled={loading}
                 >
                     {loading ? '가입 중...' : '가입하기'}
                 </button>
             </form>
 
-            <div className="text-center mt-lg text-sm">
+            <div className="text-center mt-lg text-sm signup-footer">
                 <span className="text-muted">이미 계정이 있으신가요? </span>
                 <Link to="/login" className="text-primary hover:underline">
                     로그인

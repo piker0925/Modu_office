@@ -1,5 +1,5 @@
 .login-card {
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .text-primary {
@@ -20,17 +20,21 @@
 
 /* 제목 (환영합니다!) */
 .login-title {
+    margin-bottom: 0.2rem;
     font-size: 25px;
+    color: var(--color-primary);
 }
 
 /* 부제목 (서비스 이용을 위해...) */
 .login-subtitle {
+    margin-bottom: 0.6rem;
     font-size: 10px;
 }
 
 /* 입력창 라벨 (이메일 주소, 비밀번호) */
 .login-card .input-label {
     font-size: 14px;
+    color: var(--color-primary);
 }
 
 /* 입력창 내부 글자 */
@@ -40,10 +44,19 @@
 
 /* 로그인 버튼 */
 .login-btn {
+    margin-top: 0.5rem;
     font-size: 16px;
 }
 
 /* 하단 문구 (계정이 없으신가요?) */
 .login-footer {
+    margin-top: 1.2rem;
+}
+
+.text-muted {
+    font-size: 13px;
+}
+
+.text-primary {
     font-size: 14px;
 }

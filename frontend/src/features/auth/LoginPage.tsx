@@ -53,7 +53,7 @@ export default function LoginPage() {
     return (
         <div className="card login-card">
             <div className="text-center mb-lg">
-                <p className="login-title font-bold mb-sm text-gradient">환영합니다!</p>
+                <p className="login-title font-bold mb-sm">환영합니다!</p>
                 <p className="login-subtitle text-muted text-sm">서비스 이용을 위해 로그인해주세요.</p>
             </div>
 
