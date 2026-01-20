@@ -1,0 +1,38 @@
+package com.modu.office.controller.Auth;
+
+import com.modu.office.dto.request.RefreshTokenRequest;
+import com.modu.office.dto.request.operator.OperatorLoginRequest;
+import com.modu.office.dto.request.operator.OperatorSignupRequest;
+import com.modu.office.dto.response.TokenResponse;
+import com.modu.office.service.AuthService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/auth/operator")
+@RequiredArgsConstructor
+public class OperatorAuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@Valid @RequestBody OperatorSignupRequest request) {
+        authService.signupOperator(request);
+        return ResponseEntity.ok("사용자 등록 완료");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody OperatorLoginRequest request) {
+        return ResponseEntity.ok(authService.loginOperator(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshAccessToken(request.getRefreshToken()));
+    }
+}
