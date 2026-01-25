@@ -35,6 +35,7 @@ public class ReservationService {
     private final OfficeRepository officeRepository;
     private final OfficeRoomRepository officeRoomRepository;
     private final AppUserRepository appUserRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     /**
      * 새 예약 생성
@@ -85,6 +86,11 @@ public class ReservationService {
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
+
+        // 예약 생성 이벤트 발행 (감사 로그 자동 기록)
+        eventPublisher.publishEvent(new com.modu.office.event.ReservationCreatedEvent(
+                savedReservation, customer));
+
         return ReservationResponse.fromEntity(savedReservation);
     }
 
@@ -146,6 +152,9 @@ public class ReservationService {
             throw new IllegalStateException("취소된 예약은 수정할 수 없습니다.");
         }
 
+        // 변경 전 데이터 캡처 (이벤트 발행용)
+        java.util.Map<String, Object> beforeData = com.modu.office.util.ReservationLogConverter.toMap(reservation);
+
         // 시간 수정
         if (request.getStartAt() != null && request.getEndAt() != null) {
             validateTimeRange(request.getStartAt(), request.getEndAt());
@@ -172,6 +181,11 @@ public class ReservationService {
         if (request.getStatus() != null) {
             reservation.updateStatus(request.getStatus());
         }
+
+        // 예약 수정 이벤트 발행 (감사 로그 자동 기록)
+        eventPublisher.publishEvent(new com.modu.office.event.ReservationChangedEvent(
+                reservation, beforeData, com.modu.office.entity.enums.LogAction.UPDATE,
+                reservation.getCustomer()));
 
         return ReservationResponse.fromEntity(reservation);
     }
@@ -200,7 +214,15 @@ public class ReservationService {
             throw new IllegalStateException("이미 취소된 예약입니다.");
         }
 
+        // 변경 전 데이터 캡처 (취소 전 상태)
+        java.util.Map<String, Object> beforeData = com.modu.office.util.ReservationLogConverter.toMap(reservation);
+
         reservation.cancel();
+
+        // 예약 취소 이벤트 발행 (감사 로그 자동 기록)
+        eventPublisher.publishEvent(new com.modu.office.event.ReservationChangedEvent(
+                reservation, beforeData, com.modu.office.entity.enums.LogAction.CANCEL,
+                reservation.getCustomer()));
     }
 
     /**

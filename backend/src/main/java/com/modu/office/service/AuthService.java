@@ -131,17 +131,20 @@ public class AuthService {
         private TokenResponse createTokenResponse(Authentication authentication, Account account) {
                 String accessToken = tokenProvider.generateAccessToken(authentication);
                 String refreshTokenValue = tokenProvider.generateRefreshToken();
+                java.time.LocalDateTime expiryDate = java.time.LocalDateTime.now()
+                                .plusSeconds(tokenProvider.getRefreshTokenExpirationInMs() / 1000);
 
-                // Delete existing refresh token if present
-                refreshTokenRepository.findByAccount(account).ifPresent(refreshTokenRepository::delete);
+                RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
+                                .map(token -> {
+                                        token.updateToken(refreshTokenValue, expiryDate);
+                                        return token;
+                                })
+                                .orElseGet(() -> RefreshToken.builder()
+                                                .token(refreshTokenValue)
+                                                .account(account)
+                                                .expiryDate(expiryDate)
+                                                .build());
 
-                // Create new refresh token
-                RefreshToken refreshToken = RefreshToken.builder()
-                                .token(refreshTokenValue)
-                                .account(account)
-                                .expiryDate(java.time.LocalDateTime.now()
-                                                .plusSeconds(tokenProvider.getRefreshTokenExpirationInMs() / 1000))
-                                .build();
                 refreshTokenRepository.save(refreshToken);
 
                 return TokenResponse.builder()
