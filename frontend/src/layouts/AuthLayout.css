@@ -39,7 +39,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to right, rgba(14, 19, 37, 0.9), rgba(12, 18, 44, 0.4));
+    background: linear-gradient(to right, rgba(33, 37, 53, 0.9), rgba(12, 18, 44, 0.4));
     z-index: 1;
 }
 
