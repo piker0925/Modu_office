@@ -20,6 +20,8 @@ public class OfficeResponse {
     private Long id;
     private String name;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -31,6 +33,8 @@ public class OfficeResponse {
                 .id(office.getId())
                 .name(office.getName())
                 .location(office.getLocation())
+                .latitude(office.getLatitude())
+                .longitude(office.getLongitude())
                 .createdAt(office.getCreatedAt())
                 .updatedAt(office.getUpdatedAt())
                 .build();

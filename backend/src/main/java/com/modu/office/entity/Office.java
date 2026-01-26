@@ -30,13 +30,23 @@ public class Office extends BaseEntity {
     @Column(name = "location", nullable = false, length = 255)
     private String location;
 
+    @Setter
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Setter
+    @Column(name = "longitude")
+    private Double longitude;
+
     @OneToMany(mappedBy = "office", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OfficeRoom> rooms = new ArrayList<>();
 
     @Builder
-    public Office(String name, String location) {
+    public Office(String name, String location, Double latitude, Double longitude) {
         this.name = name;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public void addRoom(OfficeRoom room) {
