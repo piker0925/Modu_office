@@ -23,4 +23,7 @@ public class OfficeRequest {
     @NotBlank(message = "위치 정보는 필수입니다.")
     @Size(min = 1, max = 255, message = "위치 정보는 1~255자 이내여야 합니다.")
     private String location;
+
+    private Double latitude;
+    private Double longitude;
 }
