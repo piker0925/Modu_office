@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +22,11 @@ public class Office extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 
+    @Setter
     @Column(name = "location", nullable = false, length = 255)
     private String location;
 
@@ -38,13 +41,5 @@ public class Office extends BaseEntity {
 
     public void addRoom(OfficeRoom room) {
         this.rooms.add(room);
-    }
-
-    /**
-     * 지점 정보 업데이트
-     */
-    public void updateInfo(String name, String location) {
-        this.name = name;
-        this.location = location;
     }
 }

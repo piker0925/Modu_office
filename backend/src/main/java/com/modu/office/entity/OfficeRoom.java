@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 지점 내 개별 회의실 정보를 관리하는 엔티티
@@ -29,12 +30,15 @@ public class OfficeRoom extends BaseEntity {
     @JoinColumn(name = "office_id", nullable = false)
     private Office office;
 
+    @Setter
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Setter
     @Column(name = "room_code", nullable = false, length = 50)
     private String roomCode;
 
+    @Setter
     @Column(name = "floor")
     private Integer floor;
 
@@ -42,9 +46,11 @@ public class OfficeRoom extends BaseEntity {
     @Column(name = "status", nullable = false)
     private RoomStatus status = RoomStatus.AVAILABLE;
 
+    @Setter
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
 
+    @Setter
     @Column(name = "category", length = 100)
     private String category;
 
@@ -64,16 +70,8 @@ public class OfficeRoom extends BaseEntity {
         this.category = category;
     }
 
-    /**
-     * 회의실 정보 업데이트
-     */
-    public void updateInfo(String name, String roomCode, Integer floor, RoomStatus status, Integer capacity,
-            String category) {
-        this.name = name;
-        this.roomCode = roomCode;
-        this.floor = floor;
+    // status는 검증 로직이 있어 수동 setter 유지
+    public void setStatus(RoomStatus status) {
         this.status = status != null ? status : RoomStatus.AVAILABLE;
-        this.capacity = capacity;
-        this.category = category;
     }
 }
