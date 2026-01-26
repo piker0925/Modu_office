@@ -16,6 +16,9 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Removed simple transition in favor of View Transition */
 }
 
 /* Utility Classes - Layout */
@@ -102,7 +105,7 @@ body {
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-md);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
@@ -184,8 +187,25 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* View Transitions - Circular Reveal Setup */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Ensure the new view is on top */
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* Disable default fade */
+::view-transition-old(root) {
+  z-index: 1;
+}
+/* No 'dark' selector needed as logic is handled in JS */

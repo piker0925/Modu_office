@@ -1,11 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { RoomProvider } from "../contexts/RoomContext";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 
 import LoginPage from "../features/auth/LoginPage";
 import SignupPage from "../features/auth/SignupPage";
+import AdminSignupPage from "../features/auth/AdminSignupPage";
 import RoomsListPage from "../features/rooms/RoomsListPage";
+
 import RoomDetailPage from "../features/rooms/RoomDetailPage";
 
 // Placeholder Components (to be moved to features later)
@@ -22,11 +25,13 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 
 export default function AppRouter() {
   return (
     <AuthProvider>
-      <Routes>
+      <RoomProvider>
+        <Routes>
         {/* Public Routes (Auth) */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/admin/signup" element={<AdminSignupPage />} />
         </Route>
 
         {/* Protected Application Routes */}
@@ -55,7 +60,8 @@ export default function AppRouter() {
             </ProtectedRoute>
           } />
         </Route>
-      </Routes>
+        </Routes>
+      </RoomProvider>
     </AuthProvider>
   );
 }

@@ -37,7 +37,7 @@ export default function LoginPage() {
                 login({
                     id: user.email, // using email as id for now
                     name: user.name,
-                    role: 'USER'
+                    role: user.role || 'USER'
                 }, 'mock-jwt-token-user');
                 navigate('/rooms');
             } else {
@@ -98,6 +98,11 @@ export default function LoginPage() {
                 <Link to="/signup" className="text-primary hover:underline">
                     회원가입
                 </Link>
+                <div className="mt-sm">
+                    <Link to="/admin/signup" className="text-xs text-muted hover:text-primary">
+                        관리자 회원가입
+                    </Link>
+                </div>
             </div>
         </div>
     );

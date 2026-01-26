@@ -60,8 +60,15 @@
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Light Mode Overrides (if needed later) */
-@media (prefers-color-scheme: light) {
-  /* Keeping it dark-default for "Premium" feel for now, 
-     but can separate palette later */
+/* Light Mode Overrides */
+[data-theme="light"] {
+  --color-bg-dark: #f8fafc; /* Light background */
+  --color-bg-card: rgba(255, 255, 255, 0.8); /* Light card bg */
+  
+  --color-text-main: #0f172a; /* Dark text */
+  --color-text-muted: #64748b; /* Muted dark text */
+  --color-text-dark: #f8fafc; /* Inverted for contrast if needed */
+
+  --glass-border: 1px solid rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
