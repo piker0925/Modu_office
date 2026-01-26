@@ -22,18 +22,28 @@ import java.util.stream.Collectors;
 public class OfficeService {
 
     private final OfficeRepository officeRepository;
+    private final GeocodingService geocodingService;
 
     /**
      * 새 지점 생성
      */
     @Transactional
     public OfficeResponse createOffice(OfficeRequest request) {
-        Office office = Office.builder()
+        Office.OfficeBuilder officeBuilder = Office.builder()
                 .name(request.getName())
                 .location(request.getLocation())
-                .build();
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude());
 
-        Office savedOffice = officeRepository.save(office);
+        // 좌표가 없고 주소가 있는 경우 지오코딩 시도
+        if (request.getLatitude() == null && request.getLongitude() == null && request.getLocation() != null) {
+            geocodingService.geocode(request.getLocation()).ifPresent(latLng -> {
+                officeBuilder.latitude(latLng.lat);
+                officeBuilder.longitude(latLng.lng);
+            });
+        }
+
+        Office savedOffice = officeRepository.save(officeBuilder.build());
         return OfficeResponse.fromEntity(savedOffice);
     }
 
@@ -67,6 +77,17 @@ public class OfficeService {
         office.setName(request.getName());
         office.setLocation(request.getLocation());
 
+        if (request.getLatitude() != null && request.getLongitude() != null) {
+            office.setLatitude(request.getLatitude());
+            office.setLongitude(request.getLongitude());
+        } else if (request.getLocation() != null && !request.getLocation().equals(office.getLocation())) {
+            // 위치가 변경되었는데 좌표가 없으면 다시 geocoding
+            geocodingService.geocode(request.getLocation()).ifPresent(latLng -> {
+                office.setLatitude(latLng.lat);
+                office.setLongitude(latLng.lng);
+            });
+        }
+
         return OfficeResponse.fromEntity(office);
     }
 
@@ -95,6 +116,15 @@ public class OfficeService {
      */
     public List<OfficeResponse> searchOfficesByLocation(String location) {
         return officeRepository.findByLocationContaining(location).stream()
+                .map(OfficeResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 좌표 기반 반경 내 지점 검색 (거리순 정렬)
+     */
+    public List<OfficeResponse> searchOfficesByDistance(double lat, double lng, double radius) {
+        return officeRepository.findNearBy(lat, lng, radius).stream()
                 .map(OfficeResponse::fromEntity)
                 .collect(Collectors.toList());
     }

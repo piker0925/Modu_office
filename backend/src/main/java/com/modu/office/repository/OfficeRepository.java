@@ -47,6 +47,6 @@ public interface OfficeRepository extends JpaRepository<Office, Long> {
      * @param radius 반경 (km)
      * @return 반경 내 지점 목록 (거리 가까운 순)
      */
-    @Query(value = "SELECT *, (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) AS distance FROM office HAVING distance < :radius ORDER BY distance", nativeQuery = true)
+    @Query(value = "SELECT * FROM office WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) < :radius ORDER BY (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude))))", nativeQuery = true)
     List<Office> findNearBy(@Param("lat") double lat, @Param("lng") double lng, @Param("radius") double radius);
 }

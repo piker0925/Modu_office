@@ -76,10 +76,15 @@ public class OfficeController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<OfficeResponse>>> searchOffices(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) String location) {
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng,
+            @RequestParam(required = false, defaultValue = "3.0") Double radius) {
 
         List<OfficeResponse> offices;
-        if (name != null && !name.isEmpty()) {
+        if (lat != null && lng != null) {
+            offices = officeService.searchOfficesByDistance(lat, lng, radius);
+        } else if (name != null && !name.isEmpty()) {
             offices = officeService.searchOfficesByName(name);
         } else if (location != null && !location.isEmpty()) {
             offices = officeService.searchOfficesByLocation(location);
