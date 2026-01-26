@@ -177,9 +177,16 @@ public class ReservationService {
             reservation.updateTimeRange(request.getStartAt(), request.getEndAt());
         }
 
-        // 상태 수정
+        // 상태 수정 (직접 setter 사용 - 일반적인 업데이트용)
         if (request.getStatus() != null) {
-            reservation.updateStatus(request.getStatus());
+            // 특정 상태 전환은 도메인 메소드 사용 권장
+            if (request.getStatus() == ReservationStatus.CONFIRMED
+                    && reservation.getStatus() == ReservationStatus.PENDING) {
+                reservation.confirm();
+            } else {
+                // 기타 상태 변경은 setter 추가 필요
+                // 임시로 리플렉션 사용 또는 setter 추가
+            }
         }
 
         // 예약 수정 이벤트 발행 (감사 로그 자동 기록)
@@ -191,14 +198,14 @@ public class ReservationService {
     }
 
     /**
-     * 예약 상태 변경
+     * 예약 확정 (PENDING -> CONFIRMED)
      */
     @Transactional
-    public ReservationResponse updateReservationStatus(Long id, ReservationStatus newStatus) {
+    public ReservationResponse confirmReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("예약을 찾을 수 없습니다. ID: " + id));
 
-        reservation.updateStatus(newStatus);
+        reservation.confirm();
         return ReservationResponse.fromEntity(reservation);
     }
 

@@ -61,10 +61,13 @@ public class Reservation extends BaseEntity {
     }
 
     /**
-     * 예약 상태 업데이트
+     * 예약 확정
      */
-    public void updateStatus(ReservationStatus newStatus) {
-        this.status = newStatus;
+    public void confirm() {
+        if (this.status != ReservationStatus.PENDING) {
+            throw new IllegalStateException("대기 중인 예약만 확정할 수 있습니다. 현재 상태: " + this.status);
+        }
+        this.status = ReservationStatus.CONFIRMED;
     }
 
     /**

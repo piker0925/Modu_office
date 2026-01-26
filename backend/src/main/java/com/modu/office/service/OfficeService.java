@@ -63,7 +63,9 @@ public class OfficeService {
         Office office = officeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("지점을 찾을 수 없습니다. ID: " + id));
 
-        office.updateInfo(request.getName(), request.getLocation());
+        // Service 레이어에서 직접 필드 업데이트
+        office.setName(request.getName());
+        office.setLocation(request.getLocation());
 
         return OfficeResponse.fromEntity(office);
     }

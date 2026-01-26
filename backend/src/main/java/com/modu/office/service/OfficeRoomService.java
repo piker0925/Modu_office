@@ -80,13 +80,13 @@ public class OfficeRoomService {
         OfficeRoom room = officeRoomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + roomId));
 
-        room.updateInfo(
-                request.getName(),
-                request.getRoomCode(),
-                request.getFloor(),
-                request.getStatus(),
-                request.getCapacity(),
-                request.getCategory());
+        // Service 레이어에서 직접 필드 업데이트
+        room.setName(request.getName());
+        room.setRoomCode(request.getRoomCode());
+        room.setFloor(request.getFloor());
+        room.setStatus(request.getStatus());
+        room.setCapacity(request.getCapacity());
+        room.setCategory(request.getCategory());
 
         return OfficeRoomResponse.fromEntity(room);
     }
