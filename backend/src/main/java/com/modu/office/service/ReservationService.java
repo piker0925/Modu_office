@@ -39,59 +39,70 @@ public class ReservationService {
 
     /**
      * 새 예약 생성
+     * <p>
+     * 낙관적 락을 사용하여 동시성 문제를 해결합니다.
+     * 동시에 같은 시간대에 예약이 생성될 경우, 먼저 커밋된 트랜잭션만 성공하고
+     * 나머지는 OptimisticLockingFailureException이 발생합니다.
+     * </p>
      */
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request) {
-        // 1. 시간 범위 유효성 검증
-        validateTimeRange(request.getStartAt(), request.getEndAt());
+        try {
+            // 1. 시간 범위 유효성 검증
+            validateTimeRange(request.getStartAt(), request.getEndAt());
 
-        // 2. 관련 엔티티 존재 확인
-        Office office = officeRepository.findById(request.getOfficeId())
-                .orElseThrow(() -> new EntityNotFoundException("지점을 찾을 수 없습니다. ID: " + request.getOfficeId()));
+            // 2. 관련 엔티티 존재 확인
+            Office office = officeRepository.findById(request.getOfficeId())
+                    .orElseThrow(() -> new EntityNotFoundException("지점을 찾을 수 없습니다. ID: " + request.getOfficeId()));
 
-        OfficeRoom room = officeRoomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + request.getRoomId()));
+            OfficeRoom room = officeRoomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + request.getRoomId()));
 
-        AppUser customer = appUserRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. ID: " + request.getCustomerId()));
+            AppUser customer = appUserRepository.findById(request.getCustomerId())
+                    .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. ID: " + request.getCustomerId()));
 
-        // 3. 회의실이 해당 지점에 속하는지 확인
-        if (!room.getOffice().getId().equals(office.getId())) {
-            throw new IllegalArgumentException("회의실이 해당 지점에 속하지 않습니다.");
+            // 3. 회의실이 해당 지점에 속하는지 확인
+            if (!room.getOffice().getId().equals(office.getId())) {
+                throw new IllegalArgumentException("회의실이 해당 지점에 속하지 않습니다.");
+            }
+
+            // 4. 낙관적 락을 사용한 시간 충돌 확인
+            List<ReservationStatus> activeStatuses = Arrays.asList(
+                    ReservationStatus.PENDING,
+                    ReservationStatus.CONFIRMED);
+            List<Reservation> conflicts = reservationRepository.findConflictingReservationsWithOptimisticLock(
+                    room.getId(),
+                    request.getStartAt(),
+                    request.getEndAt(),
+                    activeStatuses);
+
+            if (!conflicts.isEmpty()) {
+                throw new IllegalStateException("해당 시간대에 이미 예약이 존재합니다.");
+            }
+
+            // 5. 예약 생성
+            Reservation reservation = Reservation.builder()
+                    .title(request.getTitle())
+                    .office(office)
+                    .room(room)
+                    .customer(customer)
+                    .startAt(request.getStartAt())
+                    .endAt(request.getEndAt())
+                    .status(ReservationStatus.PENDING)
+                    .build();
+
+            Reservation savedReservation = reservationRepository.save(reservation);
+
+            // 예약 생성 이벤트 발행 (감사 로그 자동 기록)
+            eventPublisher.publishEvent(new com.modu.office.event.ReservationCreatedEvent(
+                    savedReservation, customer));
+
+            return ReservationResponse.fromEntity(savedReservation);
+
+        } catch (org.springframework.dao.OptimisticLockingFailureException e) {
+            // 낙관적 락 충돌 발생 시 - 다른 사용자가 먼저 예약함
+            throw new IllegalStateException("다른 사용자가 먼저 예약했습니다. 잠시 후 다시 시도해주세요.", e);
         }
-
-        // 4. 시간 충돌 확인 (PENDING, CONFIRMED 상태만 확인)
-        List<ReservationStatus> activeStatuses = Arrays.asList(
-                ReservationStatus.PENDING,
-                ReservationStatus.CONFIRMED);
-        List<Reservation> conflicts = reservationRepository.findConflictingReservations(
-                room.getId(),
-                request.getStartAt(),
-                request.getEndAt(),
-                activeStatuses);
-
-        if (!conflicts.isEmpty()) {
-            throw new IllegalStateException("해당 시간대에 이미 예약이 존재합니다.");
-        }
-
-        // 5. 예약 생성
-        Reservation reservation = Reservation.builder()
-                .title(request.getTitle())
-                .office(office)
-                .room(room)
-                .customer(customer)
-                .startAt(request.getStartAt())
-                .endAt(request.getEndAt())
-                .status(ReservationStatus.PENDING)
-                .build();
-
-        Reservation savedReservation = reservationRepository.save(reservation);
-
-        // 예약 생성 이벤트 발행 (감사 로그 자동 기록)
-        eventPublisher.publishEvent(new com.modu.office.event.ReservationCreatedEvent(
-                savedReservation, customer));
-
-        return ReservationResponse.fromEntity(savedReservation);
     }
 
     /**
@@ -141,60 +152,70 @@ public class ReservationService {
 
     /**
      * 예약 정보 수정
+     * <p>
+     * 낙관적 락을 사용하여 동시 수정을 방지합니다.
+     * </p>
      */
     @Transactional
     public ReservationResponse updateReservation(Long id, ReservationUpdateRequest request) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("예약을 찾을 수 없습니다. ID: " + id));
+        try {
+            Reservation reservation = reservationRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("예약을 찾을 수 없습니다. ID: " + id));
 
-        // 취소된 예약은 수정 불가
-        if (reservation.isCancelled()) {
-            throw new IllegalStateException("취소된 예약은 수정할 수 없습니다.");
-        }
-
-        // 변경 전 데이터 캡처 (이벤트 발행용)
-        java.util.Map<String, Object> beforeData = com.modu.office.util.ReservationLogConverter.toMap(reservation);
-
-        // 시간 수정
-        if (request.getStartAt() != null && request.getEndAt() != null) {
-            validateTimeRange(request.getStartAt(), request.getEndAt());
-
-            // 시간 충돌 확인 (현재 예약 제외)
-            List<ReservationStatus> activeStatuses = Arrays.asList(
-                    ReservationStatus.PENDING,
-                    ReservationStatus.CONFIRMED);
-            List<Reservation> conflicts = reservationRepository.findConflictingReservationsExcluding(
-                    reservation.getRoom().getId(),
-                    id,
-                    request.getStartAt(),
-                    request.getEndAt(),
-                    activeStatuses);
-
-            if (!conflicts.isEmpty()) {
-                throw new IllegalStateException("해당 시간대에 이미 예약이 존재합니다.");
+            // 취소된 예약은 수정 불가
+            if (reservation.isCancelled()) {
+                throw new IllegalStateException("취소된 예약은 수정할 수 없습니다.");
             }
 
-            reservation.updateTimeRange(request.getStartAt(), request.getEndAt());
-        }
+            // 변경 전 데이터 캡처 (이벤트 발행용)
+            java.util.Map<String, Object> beforeData = com.modu.office.util.ReservationLogConverter.toMap(reservation);
 
-        // 상태 수정 (직접 setter 사용 - 일반적인 업데이트용)
-        if (request.getStatus() != null) {
-            // 특정 상태 전환은 도메인 메소드 사용 권장
-            if (request.getStatus() == ReservationStatus.CONFIRMED
-                    && reservation.getStatus() == ReservationStatus.PENDING) {
-                reservation.confirm();
-            } else {
-                // 기타 상태 변경은 setter 추가 필요
-                // 임시로 리플렉션 사용 또는 setter 추가
+            // 시간 수정
+            if (request.getStartAt() != null && request.getEndAt() != null) {
+                validateTimeRange(request.getStartAt(), request.getEndAt());
+
+                // 낙관적 락을 사용한 시간 충돌 확인 (현재 예약 제외)
+                List<ReservationStatus> activeStatuses = Arrays.asList(
+                        ReservationStatus.PENDING,
+                        ReservationStatus.CONFIRMED);
+                List<Reservation> conflicts = reservationRepository
+                        .findConflictingReservationsExcludingWithOptimisticLock(
+                                reservation.getRoom().getId(),
+                                id,
+                                request.getStartAt(),
+                                request.getEndAt(),
+                                activeStatuses);
+
+                if (!conflicts.isEmpty()) {
+                    throw new IllegalStateException("해당 시간대에 이미 예약이 존재합니다.");
+                }
+
+                reservation.updateTimeRange(request.getStartAt(), request.getEndAt());
             }
+
+            // 상태 수정 (직접 setter 사용 - 일반적인 업데이트용)
+            if (request.getStatus() != null) {
+                // 특정 상태 전환은 도메인 메소드 사용 권장
+                if (request.getStatus() == ReservationStatus.CONFIRMED
+                        && reservation.getStatus() == ReservationStatus.PENDING) {
+                    reservation.confirm();
+                } else {
+                    // 기타 상태 변경은 setter 추가 필요
+                    // 임시로 리플렉션 사용 또는 setter 추가
+                }
+            }
+
+            // 예약 수정 이벤트 발행 (감사 로그 자동 기록)
+            eventPublisher.publishEvent(new com.modu.office.event.ReservationChangedEvent(
+                    reservation, beforeData, com.modu.office.entity.enums.LogAction.UPDATE,
+                    reservation.getCustomer()));
+
+            return ReservationResponse.fromEntity(reservation);
+
+        } catch (org.springframework.dao.OptimisticLockingFailureException e) {
+            // 낙관적 락 충돌 발생 시
+            throw new IllegalStateException("다른 사용자가 이 예약을 수정했습니다. 다시 시도해주세요.", e);
         }
-
-        // 예약 수정 이벤트 발행 (감사 로그 자동 기록)
-        eventPublisher.publishEvent(new com.modu.office.event.ReservationChangedEvent(
-                reservation, beforeData, com.modu.office.entity.enums.LogAction.UPDATE,
-                reservation.getCustomer()));
-
-        return ReservationResponse.fromEntity(reservation);
     }
 
     /**
