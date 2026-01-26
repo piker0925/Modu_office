@@ -80,14 +80,12 @@ public class ReservationController {
     }
 
     /**
-     * 예약 상태만 변경
+     * 예약 확정 (PENDING -> CONFIRMED)
      */
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<ReservationResponse>> updateReservationStatus(
-            @PathVariable Long id,
-            @RequestParam ReservationStatus status) {
-        ReservationResponse response = reservationService.updateReservationStatus(id, status);
-        return ResponseEntity.ok(ApiResponse.success("예약 상태가 변경되었습니다.", response));
+    @PatchMapping("/{id}/confirm")
+    public ResponseEntity<ApiResponse<ReservationResponse>> confirmReservation(@PathVariable Long id) {
+        ReservationResponse response = reservationService.confirmReservation(id);
+        return ResponseEntity.ok(ApiResponse.success("예약이 확정되었습니다.", response));
     }
 
     /**
