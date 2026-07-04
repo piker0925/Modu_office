@@ -15,7 +15,10 @@ import java.time.LocalTime;
  */
 @Entity
 @Getter
-@Table(name = "office")
+@Table(name = "office", indexes = {
+        @Index(name = "idx_office_latitude", columnList = "latitude"),
+        @Index(name = "idx_office_longitude", columnList = "longitude")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Office extends BaseEntity {
 

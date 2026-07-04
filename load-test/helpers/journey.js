@@ -100,8 +100,20 @@ export function userJourney() {
     });
     sleep(Math.random() * 2 + 1);
 
-    // 3. 회의실 상세 조회
-    const roomId = getRandomRoomId();
+    // 3. 회의실 상세 조회 — 검색 결과에서 실제 ID 추출 (시퀀스 미리셋 문제 방지)
+    let roomId = null;
+    try {
+        const body = res.json();
+        const rooms = Array.isArray(body) ? body : (body.data || body.content || []);
+        if (rooms.length > 0) {
+            roomId = rooms[Math.floor(Math.random() * rooms.length)].id;
+        }
+    } catch (e) {}
+
+    if (!roomId) {
+        roomId = getRandomRoomId(); // fallback
+    }
+
     res = http.get(`${BASE_URL}/rooms/${roomId}`, {
         ...authHeaders,
         responseCallback: http.expectedStatuses(200, 404),

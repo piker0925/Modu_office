@@ -2,7 +2,10 @@ package com.modu.office.repository;
 
 import com.modu.office.entity.Room;
 import com.modu.office.entity.enums.RoomStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,8 +28,10 @@ public interface RoomRepository extends JpaRepository<Room, Long>, RoomRepositor
          * @param officeId 지점 ID
          * @return 해당 지점의 회의실 목록
          */
-        @org.springframework.data.jpa.repository.EntityGraph(attributePaths = { "roomFacilities",
-                        "roomFacilities.facility" })
+        @Query("SELECT r FROM Room r LEFT JOIN FETCH r.roomFacilities rf LEFT JOIN FETCH rf.facility LEFT JOIN FETCH r.roomImages WHERE r.id = :id")
+        Optional<Room> findByIdWithDetails(@Param("id") Long id);
+
+        @EntityGraph(attributePaths = { "roomFacilities", "roomFacilities.facility" })
         List<Room> findByOfficeId(Long officeId);
 
         /**

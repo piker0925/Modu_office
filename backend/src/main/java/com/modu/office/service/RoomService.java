@@ -95,7 +95,7 @@ public class RoomService {
      * ID로 회의실 조회
      */
     public RoomResponse getRoomById(Long roomId) {
-        Room room = roomRepository.findById(java.util.Objects.requireNonNull(roomId, "회의실 ID는 필수입니다."))
+        Room room = roomRepository.findByIdWithDetails(java.util.Objects.requireNonNull(roomId, "회의실 ID는 필수입니다."))
                 .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + roomId));
         return buildRoomResponseWithFacilities(room);
     }

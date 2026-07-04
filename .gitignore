@@ -6,13 +6,15 @@
 # DB: PostgreSQL
 # ==========================================
 
-# --- Claude Code & Agent Framework ---
+# --- AI & Agent Framework ---
 .claude/
 .agent/
+.agents/
 .gemini/
 CLAUDE.md
 AGENTS.md
 GEMINI.md
+skills-lock.json
 
 # --- Local Development & Scripts ---
 scripts/
@@ -50,10 +52,6 @@ build/
 bin/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-# Gradle wrapper (Optional: usually kept, but added here if needed to be excluded)
-# .gradle
-# /build/
 
 # Spring Boot Local Configuration (Security)
 **/src/main/resources/application-local.yml

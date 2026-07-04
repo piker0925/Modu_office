@@ -32,8 +32,7 @@ SCENARIOS=(
 # ── 상태 추적 ───────────────────────────────────────
 METRICS_PID=""
 K6_PID=""
-declare -A RESULTS
-declare -A DURATIONS
+SUMMARY_LINES=""
 START_TOTAL=$(date +%s)
 
 # ── 정리 함수 (Ctrl+C / 비정상 종료 시 호출) ────────
@@ -205,7 +204,7 @@ for SCENARIO in "${SCENARIOS[@]}"; do
     K6_EXIT=0
     K6_PID=""
 
-    k6 run "$SCRIPT_DIR/scenarios/${SCENARIO}.js" \
+    k6 run -e BASE_URL=http://localhost/api "$SCRIPT_DIR/scenarios/${SCENARIO}.js" \
         > "$SCENARIO_DIR/summary.txt" 2>&1 &
     K6_PID=$!
     echo ">> k6 실행 중 (PID $K6_PID)..."
@@ -214,7 +213,7 @@ for SCENARIO in "${SCENARIOS[@]}"; do
     K6_PID=""
 
     SCENARIO_END=$(date +%s)
-    DURATIONS[$SCENARIO]=$(( SCENARIO_END - SCENARIO_START ))
+    SCENARIO_DURATION=$(( SCENARIO_END - SCENARIO_START ))
 
     # 4. 메트릭 수집 중단
     kill "$METRICS_PID" 2>/dev/null
@@ -223,12 +222,13 @@ for SCENARIO in "${SCENARIOS[@]}"; do
 
     # 5. 결과 판정
     if [[ $K6_EXIT -eq 0 ]]; then
-        RESULTS[$SCENARIO]="PASS"
-        echo ">> [$SCENARIO] 완료: PASS ($(format_duration "${DURATIONS[$SCENARIO]}"))"
+        SCENARIO_STATUS="PASS"
+        echo ">> [$SCENARIO] 완료: PASS ($(format_duration "$SCENARIO_DURATION"))"
     else
-        RESULTS[$SCENARIO]="FAIL (exit $K6_EXIT)"
-        echo ">> [$SCENARIO] 완료: FAIL (exit $K6_EXIT, $(format_duration "${DURATIONS[$SCENARIO]}"))"
+        SCENARIO_STATUS="FAIL (exit $K6_EXIT)"
+        echo ">> [$SCENARIO] 완료: FAIL (exit $K6_EXIT, $(format_duration "$SCENARIO_DURATION"))"
     fi
+    SUMMARY_LINES="${SUMMARY_LINES}$(printf "  %-14s [%s]  %s\n" "$SCENARIO" "$SCENARIO_STATUS" "$(format_duration "$SCENARIO_DURATION")")"$'\n'
 done
 
 # ── 최종 요약 ───────────────────────────────────────
@@ -239,11 +239,7 @@ echo ""
 echo "========================================"
 echo "  부하 테스트 완료: reports-$NEXT_N"
 echo "========================================"
-for SCENARIO in "${SCENARIOS[@]}"; do
-    STATUS="${RESULTS[$SCENARIO]:-SKIPPED}"
-    DURATION="${DURATIONS[$SCENARIO]:-0}"
-    printf "  %-14s [%s]  %s\n" "$SCENARIO" "$STATUS" "$(format_duration "$DURATION")"
-done
+printf "%s" "$SUMMARY_LINES"
 echo "----------------------------------------"
 printf "  총 소요시간: %s\n" "$(format_duration "$TOTAL_SECS")"
 echo "========================================"
