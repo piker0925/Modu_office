@@ -20,6 +20,8 @@ public class CacheConfig {
     public static final String OFFICES           = "offices";
     public static final String OFFICE            = "office";
     public static final String REVIEW_SUMMARY    = "review:summary";
+    public static final String ROOM              = "room";
+    public static final String USER_DETAILS      = "userDetails";
 
     @Bean
     @SuppressWarnings("null")
@@ -31,7 +33,9 @@ public class CacheConfig {
                 buildCache(FACILITY,          6, TimeUnit.HOURS,  500),
                 buildCache(OFFICES,           1, TimeUnit.HOURS,  200),
                 buildCache(OFFICE,            1, TimeUnit.HOURS,  500),
-                buildCache(REVIEW_SUMMARY,   10, TimeUnit.MINUTES, 1000)
+                buildCache(REVIEW_SUMMARY,   10, TimeUnit.MINUTES, 1000),
+                buildCache(ROOM,             30, TimeUnit.MINUTES,  600),
+                buildCache(USER_DETAILS,     10, TimeUnit.MINUTES, 6000)
         ));
         return manager;
     }

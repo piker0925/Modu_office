@@ -21,6 +21,9 @@ import com.modu.office.repository.RoomRepository;
 import com.modu.office.repository.ReservationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.modu.office.config.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,6 +97,7 @@ public class RoomService {
     /**
      * ID로 회의실 조회
      */
+    @Cacheable(value = CacheConfig.ROOM, key = "#roomId")
     public RoomResponse getRoomById(Long roomId) {
         Room room = roomRepository.findByIdWithDetails(java.util.Objects.requireNonNull(roomId, "회의실 ID는 필수입니다."))
                 .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + roomId));
@@ -232,6 +236,7 @@ public class RoomService {
      * 회의실 정보 수정
      */
     @Transactional
+    @CacheEvict(value = CacheConfig.ROOM, key = "#roomId")
     public RoomResponse updateRoom(Long roomId, RoomRequest request, AppUser currentUser) {
         Room room = roomRepository.findById(java.util.Objects.requireNonNull(roomId, "회의실 ID는 필수입니다."))
                 .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + roomId));
@@ -275,6 +280,7 @@ public class RoomService {
      * 회의실 삭제
      */
     @Transactional
+    @CacheEvict(value = CacheConfig.ROOM, key = "#roomId")
     public void deleteRoom(Long roomId, AppUser currentUser) {
         Room room = roomRepository.findById(java.util.Objects.requireNonNull(roomId, "회의실 ID는 필수입니다."))
                 .orElseThrow(() -> new EntityNotFoundException("회의실을 찾을 수 없습니다. ID: " + roomId));

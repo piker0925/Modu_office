@@ -1,11 +1,13 @@
 package com.modu.office.service;
 
+import com.modu.office.config.CacheConfig;
 import com.modu.office.entity.Account;
 import com.modu.office.entity.AppUser;
 import com.modu.office.entity.enums.LoginType;
 import com.modu.office.repository.AccountRepository;
 import com.modu.office.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         private final AppUserRepository appUserRepository;
 
         @Override
+        @Cacheable(value = CacheConfig.USER_DETAILS, key = "#email")
         @Transactional
         public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
                 Account account = accountRepository.findByEmail(email)

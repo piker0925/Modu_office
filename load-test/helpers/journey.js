@@ -18,6 +18,7 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000/api';
  * 현재는 다양한 계정 분포 테스트가 더 중요하므로 iteration별 로그인을 유지함.
  */
 const tokenCache = new Map();
+const userIdCache = new Map(); // email -> userId
 
 /**
  * 캐시된 토큰 조회 또는 로그인 수행
@@ -41,6 +42,19 @@ function getOrLogin(email, password) {
     const token = login(email, password, BASE_URL);
     if (token) {
         tokenCache.set(email, token);
+        if (!userIdCache.has(email)) {
+            const profileRes = http.get(`${BASE_URL}/users/me`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+                responseCallback: http.expectedStatuses(200, 401),
+            });
+            if (profileRes.status === 200) {
+                try {
+                    const body = profileRes.json();
+                    const uid = (body.data || body).id;
+                    if (uid) userIdCache.set(email, uid);
+                } catch (e) {}
+            }
+        }
     }
     return token;
 }
@@ -100,18 +114,24 @@ export function userJourney() {
     });
     sleep(Math.random() * 2 + 1);
 
-    // 3. 회의실 상세 조회 — 검색 결과에서 실제 ID 추출 (시퀀스 미리셋 문제 방지)
+    // 3. 회의실 상세 조회 — 검색 결과에서 실제 ID/officeId 추출 (시퀀스 미리셋 문제 방지)
+    // /rooms/search 는 ApiResponse<Page<RoomResponse>> 반환: body.data.content 가 배열
     let roomId = null;
+    let officeId = null;
     try {
         const body = res.json();
-        const rooms = Array.isArray(body) ? body : (body.data || body.content || []);
+        const pageData = body.data || body;
+        const rooms = Array.isArray(pageData) ? pageData : (pageData.content || []);
         if (rooms.length > 0) {
-            roomId = rooms[Math.floor(Math.random() * rooms.length)].id;
+            const room = rooms[Math.floor(Math.random() * rooms.length)];
+            roomId = room.id;
+            officeId = room.officeId;
         }
     } catch (e) {}
 
     if (!roomId) {
-        roomId = getRandomRoomId(); // fallback
+        roomId = getRandomRoomId();
+        officeId = getRandomOfficeId(); // fallback: officeId도 같이 설정
     }
 
     res = http.get(`${BASE_URL}/rooms/${roomId}`, {
@@ -126,8 +146,11 @@ export function userJourney() {
 
     // 4. 예약 생성 (미래 시간) - 201 성공 또는 409 시간 충돌 모두 정상 흐름
     const slot = generateReservationSlot();
+    const userId = userIdCache.get(email) || null;
     const reservationPayload = JSON.stringify({
         roomId: roomId,
+        officeId: officeId,
+        userId: userId,
         title: 'k6 Load Test Reservation',
         startAt: slot.startAt,
         endAt: slot.endAt

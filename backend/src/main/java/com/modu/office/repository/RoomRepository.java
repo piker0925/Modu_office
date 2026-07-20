@@ -28,7 +28,7 @@ public interface RoomRepository extends JpaRepository<Room, Long>, RoomRepositor
          * @param officeId 지점 ID
          * @return 해당 지점의 회의실 목록
          */
-        @Query("SELECT r FROM Room r LEFT JOIN FETCH r.roomFacilities rf LEFT JOIN FETCH rf.facility LEFT JOIN FETCH r.roomImages WHERE r.id = :id")
+        @Query("SELECT r FROM Room r LEFT JOIN FETCH r.roomFacilities rf LEFT JOIN FETCH rf.facility WHERE r.id = :id")
         Optional<Room> findByIdWithDetails(@Param("id") Long id);
 
         @EntityGraph(attributePaths = { "roomFacilities", "roomFacilities.facility" })

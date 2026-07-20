@@ -108,6 +108,7 @@ tmp/
 *.patch
 *.diff
 *.txt
+!load-test/benchmarks/*.txt
 
 # --- Tools & Assistant ---
 .antigravity/

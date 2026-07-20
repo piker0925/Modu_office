@@ -18,27 +18,32 @@ export function getRandomManagerEmail() {
     return `loadtest-manager-${String(id).padStart(3, '0')}@test.com`;
 }
 
+function toLocalDateTimeString(date) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+}
+
 /**
  * 30분 단위 스냅된 미래 예약 슬롯 생성
- * @returns {object} { startAt, endAt } (ISO String)
+ * @returns {object} { startAt, endAt } (LocalDateTime 형식 문자열)
  */
 export function generateReservationSlot() {
     const daysAhead = Math.floor(Math.random() * 30) + 1; // 1~30일 후
     const date = new Date();
     date.setDate(date.getDate() + daysAhead);
-    
+
     const hour = Math.floor(Math.random() * 8) + 9; // 09:00 ~ 16:00 시작
     const minute = Math.random() < 0.5 ? 0 : 30;    // 00분 또는 30분 스냅
-    
+
     const startAt = new Date(date);
     startAt.setHours(hour, minute, 0, 0);
-    
+
     const endAt = new Date(startAt);
     endAt.setHours(startAt.getHours() + 1); // 1시간 대여
-    
+
     return {
-        startAt: startAt.toISOString(),
-        endAt: endAt.toISOString()
+        startAt: toLocalDateTimeString(startAt),
+        endAt: toLocalDateTimeString(endAt)
     };
 }
 
